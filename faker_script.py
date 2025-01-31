@@ -164,18 +164,6 @@ def fakeExpenses(connection, n: int) -> str:
             ],
         ),
         (
-            "Wynagrodzenia",
-            10000,
-            50000,
-            [
-                "Pensje pracowników",
-                "Wynagrodzenie za nadgodziny",
-                "Premie świąteczne",
-                "Świadczenia pracownicze",
-                "Składki ubezpieczeniowe",
-            ],
-        ),
-        (
             "Marketing",
             1000,
             10000,
@@ -308,60 +296,60 @@ def fakeMenuItems(n: int) -> str:
 
 
 def fakeOrders(connection, n: int) -> str:
-    fake = Faker("pl_PL")
+    fake = Faker()
 
-    restaurants = connection.execute(
-        text("SELECT restaurant_id FROM restaurants")
-    ).fetchall()
-    menu_items = connection.execute(
-        text("SELECT menu_item_id, price FROM menu_items")
-    ).fetchall()
-    customers = connection.execute(text("SELECT customer_id FROM customers")).fetchall()
+    # Get required data from database
+    res = connection.execute(text("SELECT restaurant_id FROM restaurants"))
+    restaurant_ids = [row[0] for row in res.fetchall()]
 
-    if not restaurants or not menu_items:
-        raise ValueError("No restaurants or menu items found")
+    res = connection.execute(
+        text("SELECT menu_item_id FROM menu_items WHERE available = 1")
+    )
+    menu_items = [row[0] for row in res.fetchall()]
+
+    res = connection.execute(text("SELECT customer_id FROM customers"))
+    customer_ids = [row[0] for row in res.fetchall()]
+
+    order_types = ["dine-in", "take-out", "drive-thru"]
+    payment_methods = ["Cash", "Card"]
 
     sql = ""
-    order_types = ["dine-in", "take-out", "drive-thru"]
-    order_id = 1
+    for rest_id in restaurant_ids:
+        for i in range(n):
+            customer_id = (
+                "NULL" if random.random() > 0.8 else random.choice(customer_ids)
+            )
+            table_number = random.randint(1, 20)
+            order_type = random.choice(order_types)
+            payment_method = random.choice(payment_methods)
 
-    for i in range(n):
-        restaurant_id = random.choice(restaurants)[0]
-        customer_id = (
-            random.choice(customers)[0]
-            if random.random() < 0.5 and customers
-            else "NULL"
-        )
-        table_number = random.randint(1, 20) if random.random() < 0.7 else "NULL"
-        order_type = random.choice(order_types)
+            num_items = random.randint(1, 5)
+            selected_items = random.sample(menu_items, num_items)
+            quantities = [random.randint(1, 3) for j in range(num_items)]
 
-        num_items = random.randint(1, 3)
-        selected_items = random.sample(menu_items, num_items)
-        total_price = sum(price * random.randint(1, 5) for _, price in selected_items)
-
-        # Historical order (completed)
-        if random.random() < 0.9:
-            order_date = fake.date_time_between(start_date="-90d", end_date="now")
-            status = "Completed"
-        else:
-            order_date = fake.date_time_between(start_date="-1d", end_date="now")
-            status = random.choice(["Pending", "In Progress"])
-
-        sql += f"""INSERT INTO orders 
-        (order_id, restaurant_id, customer_id, table_number, order_type, order_status, total_price, created_at)
-        VALUES ({order_id}, {restaurant_id}, {customer_id}, {table_number}, '{order_type}', '{status}', {round(total_price, 2)},
-        TO_TIMESTAMP('{order_date}', 'YYYY-MM-DD HH24:MI:SS.FF6'));\n"""
-
-        # Insert order items
-        for menu_item_id, price in selected_items:
-            quantity = random.randint(1, 5)
-            sql += f"""INSERT INTO order_items (order_id, menu_item_id, quantity, price)
-            VALUES ({order_id}, {menu_item_id}, {quantity}, {price});\n"""
-
-        order_id += 1
+            connection.execute( f"""
+            DECLARE
+                v_menu_items sys.odcinumberlist;
+                v_quantities sys.odcinumberlist;
+                v_order_id   number;
+            BEGIN
+                v_menu_items sys.odcinumberlist := sys.odcinumberlist{tuple(selected_items)};
+                v_quantities sys.odcinumberlist := sys.odcinumberlist{tuple(quantities)};
+                v_order_id := create_order(
+                    p_restaurant_id => {rest_id},
+                    p_customer_id   => {customer_id},
+                    p_table_number  => {table_number},
+                    p_order_type    => '{order_type}',
+                    p_order_status  => 'Completed',
+                    p_menu_items    => v_menu_items,
+                    p_quantities    => v_quantities,
+                    p_payment_type  => '{payment_method}'
+                );
+            END;
+            /""")
 
     sql += "\nCOMMIT;"
-    return sql
+    return 
 
 
 def fakeReservations(connection, n: int) -> str:
@@ -438,50 +426,84 @@ def fakeSales(connection) -> str:
     sql += "\nCOMMIT;"
     return sql
 
+
 def fakeEmployees(connection) -> str:
-    fake = Faker('pl_PL')
-    
+    fake = Faker("pl_PL")
+
     role_salaries = {
         2: (8000, 12000),  # Manager
-        3: (4000, 6000),   # Waiter
-        4: (6000, 9000),   # Chef
-        5: (4500, 7000)    # Salesperson
+        3: (4000, 6000),  # Waiter
+        4: (6000, 9000),  # Chef
+        5: (4500, 7000),  # Salesperson
     }
-    
+
     # Get eligible users
-    users = connection.execute(text("""
+    users = connection.execute(
+        text(
+            """
         SELECT u.user_id, u.username, r.role_id, r.role_name 
         FROM users u 
         JOIN roles r ON u.role_id = r.role_id 
         WHERE r.role_id BETWEEN 2 AND 5
-    """)).fetchall()
-    
-    restaurants = connection.execute(text("SELECT restaurant_id FROM restaurants")).fetchall()
-    
+    """
+        )
+    ).fetchall()
+
+    restaurants = connection.execute(
+        text("SELECT restaurant_id FROM restaurants")
+    ).fetchall()
+
     if not users or not restaurants:
         raise ValueError("No users or restaurants found")
-    
+
     sql = ""
     employee_id = 1
-    
+
     for user in users:
         user_id, username, role_id, role_name = user
         restaurant_id = random.choice(restaurants)[0]
         min_salary, max_salary = role_salaries[role_id]
         salary = round(random.uniform(min_salary, max_salary), 2)
-        hire_date = fake.date_between(start_date='-2y', end_date='today')
+        hire_date = fake.date_between(start_date="-2y", end_date="today")
         phone = "+48" + str(fake.random_number(digits=9, fix_len=True))
         name = fake.name()
-        
+
         sql += f"""INSERT INTO employees 
         ( user_id, restaurant_id, name, position, salary, phone, hire_date)
         VALUES ( {user_id}, {restaurant_id}, '{name}', '{role_name}', 
         {salary}, '{phone}', TO_DATE('{hire_date}', 'YYYY-MM-DD'));\n"""
-        
+
         employee_id += 1
-    
+
     sql += "\nCOMMIT;"
     return sql
+
+
+def fakeShift(connection) -> str:
+    fake = Faker("pl_PL")
+    sql = ""
+
+    res = connection.execute(text("SELECT employee_id FROM employees"))
+    employees = res.fetchall()
+
+    for employee in employees:
+        num_shifts = random.randint(1, 5)
+
+        for _ in range(num_shifts):
+            employee_id = employee[0]
+            # Shift duration between 4-12 hours
+            shift_duration = round(random.uniform(4, 12), 2)
+
+            shift_start = fake.date_time_between(start_date="-90d", end_date="now")
+
+            sql += f"""INSERT INTO shifts 
+            (employee_id, shift_duration, shift_start_time)
+            VALUES ( {employee_id}, {shift_duration}, 
+            TO_TIMESTAMP('{shift_start}', 'YYYY-MM-DD HH24:MI:SS.FF6'));\n"""
+
+    sql += "\nCOMMIT;"
+    return sql
+
 
 if __name__ == "__main__":
     faker = Faker("pl_PL")

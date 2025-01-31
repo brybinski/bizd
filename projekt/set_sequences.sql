@@ -140,3 +140,28 @@ begin
    :NEW.expense_id := expense_id_seq.nextval;
 end;
 /
+
+
+-- Shifts
+create sequence shifts_id_seq start with 1000 increment by 1 nocache nocycle;
+create or replace trigger shifts_id_trg before
+   insert on shifts
+   for each row
+   WHEN (new.shift_id is null)
+begin
+   :NEW.shift_id := shifts_id_seq.nextval;
+end;
+/
+
+
+
+-- Logs 
+create sequence logs_id_seq start with 1000 increment by 1 nocache nocycle;
+create or replace trigger log_id_trg before
+   insert on logs
+   for each row
+   WHEN (new.log_id is null)
+begin
+   :NEW.log_id := logs_id_seq.nextval;
+end;
+/

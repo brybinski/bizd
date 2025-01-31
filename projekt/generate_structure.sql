@@ -70,6 +70,7 @@ CREATE TABLE orders (
     order_type VARCHAR(50), --drive-thru, dine-in, take-out
     order_status VARCHAR(50) DEFAULT 'Pending', -- Pending, In Progress, Completed, Cancelled
     total_price DECIMAL(10,2),
+    payment_method VARCHAR(50), -- Cash, Card, Mobile Payment, etc.
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_restaurant_id_order FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id)
 
@@ -90,7 +91,7 @@ CREATE TABLE sales (
     order_id INT NOT NULL,
     customer_id INT REFERENCES customers(customer_id),
     total_amount DECIMAL(10,2) NOT NULL,
-    payment_method VARCHAR(50), -- Cash, Card, Mobile Payment, etc.
+    payment_method VARCHAR(50),
     date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_restaurant_id_sales FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id),
     CONSTRAINT fk_order_id_sales FOREIGN KEY (order_id) REFERENCES orders(order_id)
@@ -126,4 +127,20 @@ CREATE TABLE expenses (
     category VARCHAR(50),
     CONSTRAINT fk_restaurant_id_expenses FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id)
 
+);
+
+
+CREATE TABLE logs (
+    log_id INT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    operation VARCHAR(1000) NOT NULL,
+    operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE TABLE shifts (
+    shift_id INT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    shift_duration DECIMAL(4,2) NOT NULL,
+    shift_start_time TIMESTAMP NOT NULL,
+    CONSTRAINT fk_employee_id_shifts FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
