@@ -7,12 +7,13 @@ with regularexpenses as (
         from expenses e
         join restaurants r
       on e.restaurant_id = r.restaurant_id
-       where e.expense_date BETWEEN add_months(
-      trunc(sysdate),
-      :from_mon
-   ) AND add_months(
-      trunc(sysdate),
-      :to_mon)
+       where e.expense_date between add_months(
+         trunc(sysdate),
+         :from_mon
+      ) and add_months(
+         trunc(sysdate),
+         :to_mon
+      )
    ) pivot (
       sum(amount)
       for category
@@ -65,12 +66,13 @@ on r.restaurant_id = e.restaurant_id
    select employee_id,
           sum(shift_duration) as total_hours
      from shifts
-    where  shift_start_time BETWEEN add_months(
+    where shift_start_time between add_months(
       trunc(sysdate),
       :from_mon
-   ) AND add_months(
+   ) and add_months(
       trunc(sysdate),
-      :to_mon)
+      :to_mon
+   )
     group by employee_id
 ) s
 on e.employee_id = s.employee_id
@@ -95,12 +97,13 @@ select e.name as employee_name,
    select employee_id,
           sum(shift_duration) as total_hours
      from shifts
-    where shift_start_time BETWEEN add_months(
+    where shift_start_time between add_months(
       trunc(sysdate),
       :from_mon
-   ) AND add_months(
+   ) and add_months(
       trunc(sysdate),
-      :to_mon)
+      :to_mon
+   )
     group by employee_id
 ) s
 on e.employee_id = s.employee_id
@@ -189,13 +192,12 @@ select r.name as restaurant_name,
   from restaurants r
   left join sales s
 on r.restaurant_id = s.restaurant_id
- where s.date_time BETWEEN add_months(
-      trunc(sysdate),
-      :from_mon
-   ) AND add_months(
-      trunc(sysdate),
-      :to_mon)
-
-
+ where s.date_time between add_months(
+   trunc(sysdate),
+   :from_mon
+) and add_months(
+   trunc(sysdate),
+   :to_mon
+)
  group by r.name
  order by r.name;

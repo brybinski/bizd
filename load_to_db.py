@@ -21,7 +21,7 @@ with engine.connect() as connection:
         # # Here run set_sequences.sql manually as it is not working correctly with sqlalchemy but works in sqldeveloper vscode plugin xD
         # x = input("now run set_sequences.sql manually and press enter")
 
-        # Create the roles table and insert fake users
+        # # Create the roles table and insert fake users
         # execute_statements(connection, fakeUsers(100, fakeroles=False))
 
         # # Insert fake restaurants

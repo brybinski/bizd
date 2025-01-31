@@ -5,92 +5,196 @@
 --DROP TABLE COUNTRIES CASCADE CONSTRAINTS;
 --DROP TABLE REGIONS CASCADE CONSTRAINTS;
 --COPY DATA
-CREATE TABLE REGIONS AS SELECT * FROM HR.REGIONS;
-CREATE TABLE COUNTRIES AS SELECT * FROM HR.COUNTRIES;
-CREATE TABLE LOCATIONS AS SELECT * FROM HR.LOCATIONS;
-CREATE TABLE DEPARTMENTS AS SELECT * FROM HR.DEPARTMENTS;
-CREATE TABLE JOBS AS SELECT * FROM HR.JOBS;
-CREATE TABLE EMPLOYEES AS SELECT * FROM HR.EMPLOYEES;
-CREATE TABLE JOB_HISTORY AS SELECT * FROM HR.JOB_HISTORY;
-CREATE TABLE JOB_GRADES AS SELECT * FROM HR.JOB_GRADES;
-CREATE TABLE PRODUCTS AS SELECT * FROM HR.PRODUCTS;
-CREATE TABLE SALES AS SELECT * FROM HR.SALES;
+create table regions
+   as
+      select *
+        from hr.regions;
+create table countries
+   as
+      select *
+        from hr.countries;
+create table locations
+   as
+      select *
+        from hr.locations;
+create table departments
+   as
+      select *
+        from hr.departments;
+create table jobs
+   as
+      select *
+        from hr.jobs;
+create table employees
+   as
+      select *
+        from hr.employees;
+create table job_history
+   as
+      select *
+        from hr.job_history;
+create table job_grades
+   as
+      select *
+        from hr.job_grades;
+create table products
+   as
+      select *
+        from hr.products;
+create table sales
+   as
+      select *
+        from hr.sales;
 --PK
-ALTER TABLE REGIONS ADD CONSTRAINT regions_id_pk PRIMARY KEY (REGION_ID);
-ALTER TABLE COUNTRIES ADD CONSTRAINT countries_id_pk PRIMARY KEY (COUNTRY_ID);
-ALTER TABLE LOCATIONS ADD CONSTRAINT locations_id_pk PRIMARY KEY (LOCATION_ID);
-ALTER TABLE DEPARTMENTS ADD CONSTRAINT departments_id_pk PRIMARY KEY (DEPARTMENT_ID);
-ALTER TABLE JOBS ADD CONSTRAINT jobs_id_pk PRIMARY KEY (JOB_ID);
-ALTER TABLE EMPLOYEES ADD CONSTRAINT employees_id_pk PRIMARY KEY (EMPLOYEE_ID);
-ALTER TABLE JOB_HISTORY ADD CONSTRAINT job_history_id_date_pk PRIMARY KEY (EMPLOYEE_ID, START_DATE);
-ALTER TABLE JOB_GRADES ADD CONSTRAINT job_grades_id_pk PRIMARY KEY (GRADE);
-ALTER TABLE PRODUCTS ADD CONSTRAINT products_id_pk PRIMARY KEY (PRODUCT_ID);
-ALTER TABLE SALES ADD CONSTRAINT sales_id_pk PRIMARY KEY (SALE_ID);
+alter table regions add constraint regions_id_pk primary key ( region_id );
+alter table countries add constraint countries_id_pk primary key ( country_id );
+alter table locations add constraint locations_id_pk primary key ( location_id );
+alter table departments add constraint departments_id_pk primary key ( department_id );
+alter table jobs add constraint jobs_id_pk primary key ( job_id );
+alter table employees add constraint employees_id_pk primary key ( employee_id );
+alter table job_history add constraint job_history_id_date_pk primary key ( employee_id,
+                                                                            start_date );
+alter table job_grades add constraint job_grades_id_pk primary key ( grade );
+alter table products add constraint products_id_pk primary key ( product_id );
+alter table sales add constraint sales_id_pk primary key ( sale_id );
 --ADD FK
-ALTER TABLE COUNTRIES ADD CONSTRAINT fk_region FOREIGN KEY (REGION_ID) REFERENCES REGIONS (REGION_ID);
-ALTER TABLE DEPARTMENTS ADD CONSTRAINT fk_dept_manager FOREIGN KEY (MANAGER_ID) REFERENCES EMPLOYEES (EMPLOYEE_ID);
-ALTER TABLE DEPARTMENTS ADD CONSTRAINT fk_location FOREIGN KEY (LOCATION_ID) REFERENCES LOCATIONS (LOCATION_ID);
-ALTER TABLE EMPLOYEES ADD CONSTRAINT fk_department FOREIGN KEY (DEPARTMENT_ID) REFERENCES DEPARTMENTS (DEPARTMENT_ID);
-ALTER TABLE EMPLOYEES ADD CONSTRAINT fk_job FOREIGN KEY (JOB_ID) REFERENCES JOBS (JOB_ID);
-ALTER TABLE EMPLOYEES ADD CONSTRAINT fk_manager FOREIGN KEY (MANAGER_ID) REFERENCES EMPLOYEES (EMPLOYEE_ID);
-ALTER TABLE JOB_HISTORY ADD CONSTRAINT fk_job_history_employee FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES (EMPLOYEE_ID);
-ALTER TABLE JOB_HISTORY ADD CONSTRAINT fk_job_history_department FOREIGN KEY (DEPARTMENT_ID) REFERENCES DEPARTMENTS (DEPARTMENT_ID);
-ALTER TABLE JOB_HISTORY ADD CONSTRAINT fk_job_history_job FOREIGN KEY (JOB_ID) REFERENCES JOBS (JOB_ID); 
+alter table countries
+   add constraint fk_region foreign key ( region_id )
+      references regions ( region_id );
+alter table departments
+   add constraint fk_dept_manager foreign key ( manager_id )
+      references employees ( employee_id );
+alter table departments
+   add constraint fk_location foreign key ( location_id )
+      references locations ( location_id );
+alter table employees
+   add constraint fk_department foreign key ( department_id )
+      references departments ( department_id );
+alter table employees
+   add constraint fk_job foreign key ( job_id )
+      references jobs ( job_id );
+alter table employees
+   add constraint fk_manager foreign key ( manager_id )
+      references employees ( employee_id );
+alter table job_history
+   add constraint fk_job_history_employee foreign key ( employee_id )
+      references employees ( employee_id );
+alter table job_history
+   add constraint fk_job_history_department foreign key ( department_id )
+      references departments ( department_id );
+alter table job_history
+   add constraint fk_job_history_job foreign key ( job_id )
+      references jobs ( job_id );
 
-ALTER TABLE LOCATIONS ADD CONSTRAINT fk_country FOREIGN KEY (COUNTRY_ID) REFERENCES COUNTRIES (COUNTRY_ID);
+alter table locations
+   add constraint fk_country foreign key ( country_id )
+      references countries ( country_id );
 
-ALTER TABLE SALES ADD CONSTRAINT fk_employee_sales FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES (EMPLOYEE_ID);
+alter table sales
+   add constraint fk_employee_sales foreign key ( employee_id )
+      references employees ( employee_id );
 
 --A to już nie potrzebne było xD
-ALTER TABLE SALES ADD CONSTRAINT fk_product_sales FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTS (PRODUCT_ID);
+alter table sales
+   add constraint fk_product_sales foreign key ( product_id )
+      references products ( product_id );
 
-SELECT CONCAT(CONCAT(last_name, ' '), salary) AS wynagrodzenie FROM employees 
-WHERE department_id IN (20, 50) AND salary BETWEEN 2000 AND 7000
-ORDER BY last_name;
+select concat(
+   concat(
+      last_name,
+      ' '
+   ),
+   salary
+) as wynagrodzenie
+  from employees
+ where department_id in ( 20,
+                          50 )
+   and salary between 2000 and 7000
+ order by last_name;
 
-SELECT hire_date, last_name, salary FROM employees
-WHERE manager_id IS NOT NULL
-  AND EXTRACT(YEAR FROM hire_date) = 2005
-ORDER BY salary;
+select hire_date,
+       last_name,
+       salary
+  from employees
+ where manager_id is not null
+   and extract(year from hire_date) = 2005
+ order by salary;
 
-SELECT CONCAT(CONCAT(first_name, ' '), last_name) AS full_name, salary, phone_number
-FROM employees
-WHERE SUBSTR(last_name, 3, 1) = 'e'
+select concat(
+   concat(
+      first_name,
+      ' '
+   ),
+   last_name
+) as full_name,
+       salary,
+       phone_number
+  from employees
+ where substr(
+   last_name,
+   3,
+   1
+) = 'e'
 --  AND first_name LIKE 'John'
-ORDER BY 1 DESC, 2 ASC;
+ order by 1 desc,
+          2 asc;
 
 --zmieniłem liczby bo nie było prawie nikogo poniżej 200
-SELECT first_name, last_name, ROUND(MONTHS_BETWEEN(CURRENT_DATE, HIRE_DATE)) AS months_worked, salary,
-CASE 
-        WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, HIRE_DATE)) < 200 THEN salary * 0.10
-        WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, HIRE_DATE)) BETWEEN 200 AND 250 THEN salary * 0.20
-        ELSE salary * 0.30
-END AS wysokość_dodatku
-FROM EMPLOYEES ORDER BY months_worked ASC;
+select first_name,
+       last_name,
+       round(months_between(
+          current_date,
+          hire_date
+       )) as months_worked,
+       salary,
+       case
+          when round(months_between(
+             current_date,
+             hire_date
+          )) < 200               then
+             salary * 0.10
+          when round(months_between(
+             current_date,
+             hire_date
+          )) between 200 and 250 then
+             salary * 0.20
+          else
+             salary * 0.30
+       end as wysokość_dodatku
+  from employees
+ order by months_worked asc;
 
-SELECT d.department_name, ROUND(SUM(e.salary)) AS suma_zarobków, ROUND(AVG(e.salary)) AS średnia_zarobków
-FROM  employees e JOIN  departments d ON e.department_id = d.department_id
-GROUP BY d.department_name
-HAVING MIN(e.salary) > 5000;
+select d.department_name,
+       round(sum(e.salary)) as suma_zarobków,
+       round(avg(e.salary)) as średnia_zarobków
+  from employees e
+  join departments d
+on e.department_id = d.department_id
+ group by d.department_name
+having min(e.salary) > 5000;
 
-SELECT e.employee_id, e.first_name, e.last_name , d.department_name, l.city
-FROM EMPLOYEES e JOIN 
-	DEPARTMENTS d JOIN LOCATIONS l ON l.LOCATION_ID=d.LOCATION_ID 
-ON d.department_id = d.department_id 
-WHERE l.CITY = 'Toronto';
+select e.employee_id,
+       e.first_name,
+       e.last_name,
+       d.department_name,
+       l.city
+  from employees e
+  join departments d
+  join locations l
+on l.location_id = d.location_id
+on d.department_id = d.department_id
+ where l.city = 'Toronto';
 
 
 
-SELECT 
-    e1.first_name || ' ' || e1.last_name AS JENIFER,
-    e2.first_name || ' ' || e2.last_name AS COWORKER
-FROM 
-    employees e1
-JOIN 
-    employees e2 ON e1.department_id = e2.department_id
-WHERE 
-    e1.first_name = 'Jennifer'
-    AND e1.employee_id != e2.employee_id;
-
-   	
-   
+select e1.first_name
+       || ' '
+       || e1.last_name as jenifer,
+       e2.first_name
+       || ' '
+       || e2.last_name as coworker
+  from employees e1
+  join employees e2
+on e1.department_id = e2.department_id
+ where e1.first_name = 'Jennifer'
+   and e1.employee_id != e2.employee_id;

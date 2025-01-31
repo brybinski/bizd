@@ -1,77 +1,100 @@
-
-CREATE TABLE REGIONS (
-    region_id NUMBER PRIMARY KEY,
-    region_name VARCHAR2(100)
+create table regions (
+   region_id   number primary key,
+   region_name varchar2(100)
 );
 
-CREATE TABLE COUNTRIES (
-    country_id CHAR(2) PRIMARY KEY,
-    country_name VARCHAR2(100)
+create table countries (
+   country_id   char(2) primary key,
+   country_name varchar2(100)
 );
-ALTER TABLE COUNTRIES ADD (region_id NUMBER);
-ALTER TABLE COUNTRIES ADD CONSTRAINT fk_region FOREIGN KEY (region_id) REFERENCES REGIONS(region_id);
-
-CREATE TABLE LOCATIONS (
-    location_id NUMBER PRIMARY KEY,
-    postal_code VARCHAR2(100),
-    city VARCHAR2(100) NOT NULL,
-    state_province VARCHAR2(100),
-    country_id CHAR(2),
-    CONSTRAINT fk_country FOREIGN KEY (country_id) REFERENCES COUNTRIES(country_id)
+alter table countries add (
+   region_id number
 );
+alter table countries
+   add constraint fk_region foreign key ( region_id )
+      references regions ( region_id );
 
-ALTER TABLE	LOCATIONS ADD (street_address VARCHAR2(100));
-
-CREATE TABLE DEPARTMENTS (
-    department_id NUMBER PRIMARY KEY,
-    department_name VARCHAR2(100) NOT NULL,
-    manager_id NUMBER,
-    location_id NUMBER,
-    CONSTRAINT fk_location FOREIGN KEY (location_id) REFERENCES LOCATIONS(location_id)
+create table locations (
+   location_id    number primary key,
+   postal_code    varchar2(100),
+   city           varchar2(100) not null,
+   state_province varchar2(100),
+   country_id     char(2),
+   constraint fk_country foreign key ( country_id )
+      references countries ( country_id )
 );
 
-CREATE TABLE JOBS (
-    job_id VARCHAR2(10) PRIMARY KEY,
-    job_title VARCHAR2(100) NOT NULL,
-    min_salary NUMBER,
-    max_salary NUMBER,
-    CONSTRAINT chk_salary CHECK (min_salary <= max_salary AND min_salary >= 2000)
+alter table locations add (
+   street_address varchar2(100)
 );
 
-CREATE TABLE EMPLOYEES (
-    employee_id NUMBER PRIMARY KEY,
-    first_name VARCHAR2(100),
-    last_name VARCHAR2(100) NOT NULL,
-    email VARCHAR2(254) UNIQUE NOT NULL,
-    phone_number VARCHAR2(11),
-    hire_date DATE NOT NULL,
-    job_id VARCHAR2(10),
-    salary NUMBER,
-    department_id NUMBER,
-	CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES DEPARTMENTS(department_id),
-    CONSTRAINT fk_job FOREIGN KEY (job_id) REFERENCES JOBS(job_id)
+create table departments (
+   department_id   number primary key,
+   department_name varchar2(100) not null,
+   manager_id      number,
+   location_id     number,
+   constraint fk_location foreign key ( location_id )
+      references locations ( location_id )
 );
 
-ALTER TABLE EMPLOYEES ADD (commission_pct NUMBER, manager_id NUMBER);
-
-ALTER TABLE EMPLOYEES ADD CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES EMPLOYEES(employee_id);
-ALTER TABLE DEPARTMENTS ADD CONSTRAINT fk_dept_manager FOREIGN KEY (manager_id) REFERENCES EMPLOYEES(employee_id);
-
-
-
-CREATE TABLE JOB_HISTORY (
-    employee_id NUMBER,
-    start_date DATE NOT NULL,
-    end_date DATE,
-    job_id VARCHAR2(10),
-    department_id NUMBER,
-    CONSTRAINT pk_job_history PRIMARY KEY (employee_id, start_date),
-    CONSTRAINT fk_job_history_employee FOREIGN KEY (employee_id) REFERENCES EMPLOYEES(employee_id),
-    CONSTRAINT fk_job_history_job FOREIGN KEY (job_id) REFERENCES JOBS(job_id),
-    CONSTRAINT fk_job_history_department FOREIGN KEY (department_id) REFERENCES DEPARTMENTS(department_id)
+create table jobs (
+   job_id     varchar2(10) primary key,
+   job_title  varchar2(100) not null,
+   min_salary number,
+   max_salary number,
+   constraint chk_salary
+      check ( min_salary <= max_salary
+         and min_salary >= 2000 )
 );
 
-SELECT table_name FROM user_tables;
+create table employees (
+   employee_id   number primary key,
+   first_name    varchar2(100),
+   last_name     varchar2(100) not null,
+   email         varchar2(254) unique not null,
+   phone_number  varchar2(11),
+   hire_date     date not null,
+   job_id        varchar2(10),
+   salary        number,
+   department_id number,
+   constraint fk_department foreign key ( department_id )
+      references departments ( department_id ),
+   constraint fk_job foreign key ( job_id )
+      references jobs ( job_id )
+);
+
+alter table employees add (
+   commission_pct number,
+   manager_id     number
+);
+
+alter table employees
+   add constraint fk_manager foreign key ( manager_id )
+      references employees ( employee_id );
+alter table departments
+   add constraint fk_dept_manager foreign key ( manager_id )
+      references employees ( employee_id );
+
+
+
+create table job_history (
+   employee_id   number,
+   start_date    date not null,
+   end_date      date,
+   job_id        varchar2(10),
+   department_id number,
+   constraint pk_job_history primary key ( employee_id,
+                                           start_date ),
+   constraint fk_job_history_employee foreign key ( employee_id )
+      references employees ( employee_id ),
+   constraint fk_job_history_job foreign key ( job_id )
+      references jobs ( job_id ),
+   constraint fk_job_history_department foreign key ( department_id )
+      references departments ( department_id )
+);
+
+select table_name
+  from user_tables;
 
 --COMMIT;
 --

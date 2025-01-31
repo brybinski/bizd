@@ -1,131 +1,162 @@
-CREATE OR REPLACE TRIGGER trg_protect_roles
-BEFORE INSERT OR UPDATE OR DELETE ON roles
-DECLARE
-    PRAGMA AUTONOMOUS_TRANSACTION; -- ale się z tym namęczyłem xd
-BEGIN
-    INSERT INTO logs ( log_username, operation) VALUES (user ,  'INSERT/UPDATE/DELETE Operations on Role table are not allowed');
-    COMMIT;
-    RAISE_APPLICATION_ERROR(-20008, ' Operations on Role table are not allowed');
-END;
+create or replace trigger trg_protect_roles before
+   insert or update or delete on roles
+declare
+   pragma autonomous_transaction; -- ale się z tym namęczyłem xd
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'INSERT/UPDATE/DELETE Operations on Role table are not allowed' );
+   commit;
+   raise_application_error(
+      -20008,
+      ' Operations on Role table are not allowed'
+   );
+end;
 /
 
-INSERT INTO roles (role_name) VALUES ('X');
+insert into roles ( role_name ) values ( 'X' );
 
-INSERT INTO logs ( log_username, operation) VALUES (user ,  'Operations on Role table are not allowed');
+insert into logs (
+   log_username,
+   operation
+) values ( user,
+           'Operations on Role table are not allowed' );
 
-CREATE OR REPLACE TRIGGER trg_audit_users
-BEFORE UPDATE ON users
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'UPDATE Users - Old values: [Username: ' || :OLD.username || 
-        ', Email: ' || :OLD.email || 
-        ', Role: ' || :OLD.role_id || 
-        '] New values: [Username: ' || :NEW.username || 
-        ', Email: ' || :NEW.email || 
-        ', Role: ' || :NEW.role_id || ']'
-    );
-END;
+create or replace trigger trg_audit_users before
+   update on users
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'UPDATE Users - Old values: [Username: '
+              || :old.username
+              || ', Email: '
+              || :old.email
+              || ', Role: '
+              || :old.role_id
+              || '] New values: [Username: '
+              || :new.username
+              || ', Email: '
+              || :new.email
+              || ', Role: '
+              || :new.role_id
+              || ']' );
+end;
 /
 
 
-CREATE OR REPLACE TRIGGER trg_insert_users
-BEFORE INSERT ON users
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'INSERT Users: [Username: ' || :NEW.username || 
-        ', Email: ' || :NEW.email || 
-        ', Role: ' || :NEW.role_id || ']'
-    );
-END;
+create or replace trigger trg_insert_users before
+   insert on users
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'INSERT Users: [Username: '
+              || :new.username
+              || ', Email: '
+              || :new.email
+              || ', Role: '
+              || :new.role_id
+              || ']' );
+end;
 /
 
-CREATE OR REPLACE TRIGGER trg_delete_users
-BEFORE DELETE ON users
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'DELETE users: [Username: ' || :NEW.username || 
-        ', Email: ' || :NEW.email || 
-        ', Role: ' || :NEW.role_id || ']'
-    );
-END;
+create or replace trigger trg_delete_users before
+   delete on users
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'DELETE users: [Username: '
+              || :new.username
+              || ', Email: '
+              || :new.email
+              || ', Role: '
+              || :new.role_id
+              || ']' );
+end;
 /
 
-CREATE OR REPLACE TRIGGER trg_audit_employees
-BEFORE UPDATE ON employees
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'UPDATE Employee - Old values: [Name: ' || :OLD.name || 
-        ', Position: ' || :OLD.position ||
-        ', Salary: ' || :OLD.salary ||
-        ', Phone: ' || :OLD.phone ||
-        ', Restaurant: ' || :OLD.restaurant_id ||
-        '] New values: [Name: ' || :NEW.name || 
-        ', Position: ' || :NEW.position ||
-        ', Salary: ' || :NEW.salary ||
-        ', Phone: ' || :NEW.phone ||
-        ', Restaurant: ' || :NEW.restaurant_id || ']'
-    );
-END;
+create or replace trigger trg_audit_employees before
+   update on employees
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'UPDATE Employee - Old values: [Name: '
+              || :old.name
+              || ', Position: '
+              || :old.position
+              || ', Salary: '
+              || :old.salary
+              || ', Phone: '
+              || :old.phone
+              || ', Restaurant: '
+              || :old.restaurant_id
+              || '] New values: [Name: '
+              || :new.name
+              || ', Position: '
+              || :new.position
+              || ', Salary: '
+              || :new.salary
+              || ', Phone: '
+              || :new.phone
+              || ', Restaurant: '
+              || :new.restaurant_id
+              || ']' );
+end;
 /
 
-CREATE OR REPLACE TRIGGER trg_insert_employees
-BEFORE INSERT ON employees
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'INSERT Employee: [Name: ' || :NEW.name || 
-        ', Position: ' || :NEW.position ||
-        ', Salary: ' || :NEW.salary ||
-        ', Phone: ' || :NEW.phone ||
-        ', Restaurant: ' || :NEW.restaurant_id || ']'
-    );
-END;
+create or replace trigger trg_insert_employees before
+   insert on employees
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'INSERT Employee: [Name: '
+              || :new.name
+              || ', Position: '
+              || :new.position
+              || ', Salary: '
+              || :new.salary
+              || ', Phone: '
+              || :new.phone
+              || ', Restaurant: '
+              || :new.restaurant_id
+              || ']' );
+end;
 /
 
-CREATE OR REPLACE TRIGGER trg_delete_employees
-BEFORE DELETE ON employees
-FOR EACH ROW
-BEGIN
-    INSERT INTO logs (
-        log_username, 
-        operation
-    ) 
-    VALUES (
-        user,
-        'DELETE Employee: [Name: ' || :OLD.name || 
-        ', Position: ' || :OLD.position ||
-        ', Salary: ' || :OLD.salary ||
-        ', Phone: ' || :OLD.phone ||
-        ', Restaurant: ' || :OLD.restaurant_id || ']'
-    );
-END;
+create or replace trigger trg_delete_employees before
+   delete on employees
+   for each row
+begin
+   insert into logs (
+      log_username,
+      operation
+   ) values ( user,
+              'DELETE Employee: [Name: '
+              || :old.name
+              || ', Position: '
+              || :old.position
+              || ', Salary: '
+              || :old.salary
+              || ', Phone: '
+              || :old.phone
+              || ', Restaurant: '
+              || :old.restaurant_id
+              || ']' );
+end;
 /

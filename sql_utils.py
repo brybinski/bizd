@@ -12,8 +12,7 @@ def execute_statements(connection, sql_statements):
     for statement in statements:
         if statement:
             connection.execute(text(statement))
-
-
+t 
 def clearTables(connection) -> None:
     result = connection.execute(
         text("SELECT table_name FROM user_tables ORDER BY table_name DESC")
@@ -23,14 +22,8 @@ def clearTables(connection) -> None:
         try:
             connection.execute(
                 text(
-                    f"""
-                BEGIN
-                    EXECUTE IMMEDIATE 'ALTER TABLE {row.table_name} DISABLE CONSTRAINT ALL';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        NULL;
-                END;
-            """
+                    f"""ALTER TABLE {row.table_name} DISABLE CONSTRAINT ALL ;
+                    COMMIT;"""
                 )
             )
             
@@ -48,14 +41,8 @@ def clearSequences(connection) -> None:
         try:
             connection.execute(
                 text(
-                    f"""
-                BEGIN
-                    EXECUTE IMMEDIATE 'DROP SEQUENCE {row.sequence_name}';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        NULL;
-                END;
-            """
+                    f"""DROP SEQUENCE {row.sequence_name}';
+                    COMMIT;"""
                 )
             )
         except Exception as e:
