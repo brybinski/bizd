@@ -12,7 +12,7 @@ def execute_statements(connection, sql_statements):
     for statement in statements:
         if statement:
             connection.execute(text(statement))
-t 
+
 def clearTables(connection) -> None:
     result = connection.execute(
         text("SELECT table_name FROM user_tables ORDER BY table_name DESC")

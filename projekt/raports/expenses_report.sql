@@ -141,63 +141,63 @@ select *
  order by restaurant_name;
 
 
---inventory report across suppliers
-with supplier_stats as (
-   select r.name as restaurant_name,
-          s.name as supplier_name,
-          count(i.item_name) as items_count,
-          sum(i.quantity * i.price) as total_value,
-          round(
-             avg(i.price),
-             2
-          ) as avg_item_price
-     from restaurants r
-     join inventory i
-   on r.restaurant_id = i.restaurant_id
-     join suppliers s
-   on i.supplier_id = s.supplier_id
-    group by r.name,
-             s.name
-)
-select restaurant_name,
-       supplier_name,
-       items_count,
-       avg_item_price || ' PLN' as avg_price,
-       total_value || ' PLN' as total_value
-  from supplier_stats
- order by restaurant_name,
-          total_value desc;
+-- --inventory report across suppliers
+-- with supplier_stats as (
+--    select r.name as restaurant_name,
+--           s.name as supplier_name,
+--           count(i.item_name) as items_count,
+--           sum(i.quantity * i.price) as total_value,
+--           round(
+--              avg(i.price),
+--              2
+--           ) as avg_item_price
+--      from restaurants r
+--      join inventory i
+--    on r.restaurant_id = i.restaurant_id
+--      join suppliers s
+--    on i.supplier_id = s.supplier_id
+--     group by r.name,
+--              s.name
+-- )
+-- select restaurant_name,
+--        supplier_name,
+--        items_count,
+--        avg_item_price || ' PLN' as avg_price,
+--        total_value || ' PLN' as total_value
+--   from supplier_stats
+--  order by restaurant_name,
+--           total_value desc;
 
 
-select r.name as restaurant_name,
-       nvl(
-          sum(s.total_amount),
-          0
-       )
-       || ' PLN' as total_sales,
-       nvl(
-          count(s.sale_id),
-          0
-       ) as total_orders,
-       case
-          when count(s.sale_id) > 0 then
-             round(
-                sum(s.total_amount) / count(s.sale_id),
-                2
-             )
-             || ' PLN'
-          else
-             '0.00 PLN'
-       end as avg_order_value
-  from restaurants r
-  left join sales s
-on r.restaurant_id = s.restaurant_id
- where s.date_time between add_months(
-   trunc(sysdate),
-   :from_mon
-) and add_months(
-   trunc(sysdate),
-   :to_mon
-)
- group by r.name
- order by r.name;
+-- select r.name as restaurant_name,
+--        nvl(
+--           sum(s.total_amount),
+--           0
+--        )
+--        || ' PLN' as total_sales,
+--        nvl(
+--           count(s.sale_id),
+--           0
+--        ) as total_orders,
+--        case
+--           when count(s.sale_id) > 0 then
+--              round(
+--                 sum(s.total_amount) / count(s.sale_id),
+--                 2
+--              )
+--              || ' PLN'
+--           else
+--              '0.00 PLN'
+--        end as avg_order_value
+--   from restaurants r
+--   left join sales s
+-- on r.restaurant_id = s.restaurant_id
+--  where s.date_time between add_months(
+--    trunc(sysdate),
+--    :from_mon
+-- ) and add_months(
+--    trunc(sysdate),
+--    :to_mon
+-- )
+--  group by r.name
+--  order by r.name;

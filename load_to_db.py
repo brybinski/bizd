@@ -52,7 +52,7 @@ with engine.connect() as connection:
         # execute_statements(connection, fakeSales(connection))
 
         # # Insert fake employees
-        execute_statements(connection, fakeEmployees(connection))
+        # execute_statements(connection, fakeEmployees(connection))
 
         # # Insert fake shifts
         # execute_statements(connection, fakeShift(connection))
@@ -67,7 +67,7 @@ with engine.connect() as connection:
 
         # for row in result:
         #     print(row)
-        expenses_report(connection, -3,-2)
-        # repr(inventory_value_report(connection))
+        # expenses_report(connection, -3,1)
+        repr(inventory_value_report(connection))
 
         connection.close()
