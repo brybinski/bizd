@@ -3,7 +3,7 @@ import numpy as np
 from sqlalchemy import text
 
 
-def expenses_report(connection, month: int = 1):
+def expenses_report(connection, from_mon: int = -9, to_mon=1):
 
     sql = f"""WITH regularexpenses AS (
         SELECT *
@@ -13,7 +13,12 @@ def expenses_report(connection, month: int = 1):
                    e.amount
             FROM expenses e
             JOIN restaurants r ON e.restaurant_id = r.restaurant_id
-            WHERE e.expense_date >= TRUNC(ADD_MONTHS(SYSDATE, -{month}), 'MM')
+            WHERE e.expense_date BETWEEN add_months(
+      trunc(sysdate),
+      {from_mon}
+   ) AND add_months(
+      trunc(sysdate),
+      {to_mon})
               AND e.expense_date < TRUNC(SYSDATE, 'MM')
         )
         PIVOT (

@@ -132,7 +132,7 @@ CREATE TABLE expenses (
 
 CREATE TABLE logs (
     log_id INT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
+    log_username VARCHAR(100) NOT NULL,
     operation VARCHAR(1000) NOT NULL,
     operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -144,3 +144,18 @@ CREATE TABLE shifts (
     shift_start_time TIMESTAMP NOT NULL,
     CONSTRAINT fk_employee_id_shifts FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
+
+CREATE TABLE employee_archive(
+    employee_id INT PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    restaurant_id INT REFERENCES restaurants(restaurant_id),
+    name VARCHAR(512) NOT NULL,
+    position VARCHAR(256),
+    salary DECIMAL(10,2),
+    phone VARCHAR(20),
+    hire_date DATE,
+    worked_hours DECIMAL(8,2),
+    termination_date DATE,
+    termination_reason VARCHAR(512)
+);
+

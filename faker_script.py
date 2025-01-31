@@ -5,7 +5,7 @@ from sqlalchemy import text
 import datetime
 
 
-def fakeUsers(n: int) -> str:
+def fakeUsers(n: int, fakeroles=False) -> str:
 
     fake = Faker("pl_PL")
     roles = [
@@ -18,8 +18,9 @@ def fakeUsers(n: int) -> str:
     ]
 
     sql = ""
-    for role_id, role_name in roles:
-        sql += f"INSERT INTO roles (role_id, role_name) VALUES ({role_id}, '{role_name}');\n"
+    if fakeroles:
+        for role_id, role_name in roles:
+            sql += f"INSERT INTO roles (role_id, role_name) VALUES ({role_id}, '{role_name}');\n"
 
     for i in range(n):
         username = fake.user_name()

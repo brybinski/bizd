@@ -21,8 +21,8 @@ with engine.connect() as connection:
         # # Here run set_sequences.sql manually as it is not working correctly with sqlalchemy but works in sqldeveloper vscode plugin xD
         # x = input("now run set_sequences.sql manually and press enter")
 
-        # # Create the roles table and insert fake users
-        # execute_statements(connection, fakeUsers(100))
+        # Create the roles table and insert fake users
+        # execute_statements(connection, fakeUsers(100, fakeroles=False))
 
         # # Insert fake restaurants
         # execute_statements(connection, fakeRestaurant(connection, 10))
@@ -52,7 +52,7 @@ with engine.connect() as connection:
         # execute_statements(connection, fakeSales(connection))
 
         # # Insert fake employees
-        # execute_statements(connection, fakeEmployees(connection))
+        execute_statements(connection, fakeEmployees(connection))
 
         # # Insert fake shifts
         # execute_statements(connection, fakeShift(connection))
@@ -67,7 +67,7 @@ with engine.connect() as connection:
 
         # for row in result:
         #     print(row)
-        # expenses_report(connection, 3)
+        expenses_report(connection, -3,-2)
         # repr(inventory_value_report(connection))
 
         connection.close()
